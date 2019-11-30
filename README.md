@@ -13,3 +13,5 @@ the outputs in outputs/, run:
 
   `$ python setup.py test`
 
+You can also view test output on
+[Github Actions](https://github.com/dainnilsson/adventofcode-2019/actions).
