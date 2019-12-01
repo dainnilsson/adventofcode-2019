@@ -4,7 +4,7 @@ Python 3 implementation, tested with Python 3.6.
 ## Running
 To run a specific day X, passing the input to use:
 
-  `$ python -m aoc19.dayX inputX.txt`
+  `$ python -m aoc19.dayX inputs/X.txt`
 
 
 ## Tests
