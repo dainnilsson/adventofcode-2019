@@ -1,9 +1,30 @@
+def cost(m):
+    return max(0, m // 3 - 2)
+
+
+def full_cost(m):
+    c = cost(m)
+    return c + full_cost(c) if c else 0
+
+
 def solve(lines):
-    ms = [[int(d) // 3 - 2] for d in lines]
-    for m in ms:
-        while m[-1]:
-            m.append(max(0, m[-1] // 3 - 2))
-    return (sum(l[0] for l in ms), sum(sum(l) for l in ms))
+    ms = [int(d) for d in lines]
+    return (
+        sum(cost(m) for m in ms),
+        sum(full_cost(m) for m in ms),
+    )
+
+
+def optimized(lines):
+    a, b = 0, 0
+    for l in lines:
+        m = int(l)
+        c = m // 3 - 2
+        a += c
+        while c:
+            b += c
+            c = max(0, c // 3 - 2)
+    return a, b
 
 
 if __name__ == "__main__":
