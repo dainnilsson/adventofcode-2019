@@ -13,7 +13,7 @@ class TestAoc19(unittest.TestCase):
         print()
         print()
 
-        for fname in os.listdir("inputs"):
+        for fname in sorted(os.listdir("inputs")):
             m = RE_DAY.match(fname)
             day = int(m.group(1))
             with self.subTest(day=day):
