@@ -1,3 +1,6 @@
+from itertools import count
+
+
 def op_add(data, a, b, c):
     data[c] = data[a] + data[b]
 
@@ -29,9 +32,7 @@ def run(data, noun, verb):
 
 def candidates():
     """Generates noun, verb pairs in a growing search space."""
-    s = 0
-    while True:
-        s += 1
+    for s in count(0):
         for x in range(s):
             yield (x, s)
             yield (s, x)
