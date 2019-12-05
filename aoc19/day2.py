@@ -24,14 +24,14 @@ class Program:
     def __init__(self, data):
         self.data = data
 
+    def get_pc(self):
+        self.pc += 1
+        return self.pc - 1
+
     def step(self):
-        op = self.state[self.pc]
+        op = self.state[self.get_pc()]
         fun, n_args = Ops.get(op)
-        args = []
-        for i in range(n_args):
-            args.append(self.state[self.pc + 1 + i])
-        self.pc += 1 + n_args
-        fun(self, *args)
+        fun(self, *[self.state[self.get_pc()] for _ in range(n_args)])
         return op
 
     def run(self):

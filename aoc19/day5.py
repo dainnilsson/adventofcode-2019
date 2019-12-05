@@ -1,7 +1,7 @@
-from .day2 import Program as Day2Program, Ops as Day2Ops
+from . import day2
 
 
-class Ops(Day2Ops):
+class Ops(day2.Ops):
     def op_3(prog, a):
         prog.state[a] = prog.input()
 
@@ -23,24 +23,22 @@ class Ops(Day2Ops):
         prog.state[c] = int(prog.state[a] == prog.state[b])
 
 
-class Program(Day2Program):
+class Program(day2.Program):
     def __init__(self, data, input_fn, output_fn):
         super().__init__(data)
         self.input = input_fn
         self.output = output_fn
 
     def step(self):
-        code = self.state[self.pc]
-        code, op = divmod(code, 100)
+        code, op = divmod(self.state[self.get_pc()], 100)
         fun, n_args = Ops.get(op)
         args = []
         for i in range(n_args):
-            code, mode = divmod(code, 10)
-            if mode:
-                args.append(self.pc + 1 + i)
-            else:
-                args.append(self.state[self.pc + 1 + i])
-        self.pc += 1 + n_args
+            code, direct = divmod(code, 10)
+            pos = self.get_pc()
+            if not direct:
+                pos = self.state[pos]
+            args.append(pos)
         fun(self, *args)
         return op
 
