@@ -1,33 +1,45 @@
 from itertools import count
+from inspect import signature
+from functools import lru_cache
 
 
-def op_add(data, a, b, c):
-    data[c] = data[a] + data[b]
+class Ops:
+    def op_1(prog, a, b, c):
+        prog.state[c] = prog.state[a] + prog.state[b]
+
+    def op_2(prog, a, b, c):
+        prog.state[c] = prog.state[a] * prog.state[b]
+
+    def op_99(prog):
+        pass
+
+    @classmethod
+    @lru_cache(maxsize=None)
+    def get(cls, op):
+        fun = getattr(cls, f"op_{op}")
+        return fun, len(signature(fun).parameters) - 1
 
 
-def op_mul(data, a, b, c):
-    data[c] = data[a] * data[b]
+class Program:
+    def __init__(self, data):
+        self.data = data
 
+    def step(self):
+        op = self.state[self.pc]
+        fun, n_args = Ops.get(op)
+        args = []
+        for i in range(n_args):
+            args.append(self.state[self.pc + 1 + i])
+        self.pc += 1 + n_args
+        fun(self, *args)
+        return op
 
-OPS = {1: (3, op_add), 2: (3, op_mul)}
-
-
-def run(data, noun, verb):
-    data = data.copy()
-    data[1] = noun
-    data[2] = verb
-
-    pc = 0
-    try:
-        op = data[pc]
-        while op != 99:
-            n_args, fun = OPS[op]
-            fun(data, *data[pc + 1 : pc + 1 + n_args])
-            pc += 1 + n_args
-            op = data[pc]
-    except Exception:
-        return None
-    return data[0]
+    def run(self):
+        self.pc = 0
+        self.state = self.data.copy()
+        while self.step() != 99:
+            pass
+        return self.state[0]
 
 
 def candidates():
@@ -40,6 +52,39 @@ def candidates():
 
 
 def solve(lines):
+    data = [int(d) for d in lines[0].split(",")]
+
+    program = Program(data)
+
+    program.data[1] = 12
+    program.data[2] = 2
+
+    a = program.run()
+
+    for noun, verb in candidates():
+        program.data[1] = noun
+        program.data[2] = verb
+        if program.run() == 19690720:
+            return (a, 100 * noun + verb)
+
+
+def run(data, noun, verb):
+    data = data.copy()
+    data[1] = noun
+    data[2] = verb
+    pc = 0
+    op = 0
+    while op != 99:
+        op = data[pc]
+        if op == 1:
+            data[data[pc + 3]] = data[data[pc + 1]] + data[data[pc + 2]]
+        elif op == 2:
+            data[data[pc + 3]] = data[data[pc + 1]] * data[data[pc + 2]]
+        pc += 4
+    return data[0]
+
+
+def optimized(lines):
     data = [int(d) for d in lines[0].split(",")]
 
     a = run(data, 12, 2)
