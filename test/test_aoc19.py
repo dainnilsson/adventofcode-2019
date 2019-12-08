@@ -61,4 +61,9 @@ class TestAoc19(unittest.TestCase):
             except FileNotFoundError:
                 self.skipTest("No answer for day {:d} part {:s}".format(day, part))
             self.assertEqual(str(answer), output)
-            print("  Part {:s}:".format(part), answer)
+
+            if "\n" in output:
+                print("  Part {:s}:".format(part))
+                print(answer)
+            else:
+                print("  Part {:s}:".format(part), answer)
