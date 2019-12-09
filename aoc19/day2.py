@@ -21,8 +21,9 @@ class Ops:
 
 
 class Program:
-    def __init__(self, data):
+    def __init__(self, data, ops=Ops):
         self.data = data
+        self.ops = ops
 
     def get_pc(self):
         self.pc += 1
@@ -30,7 +31,7 @@ class Program:
 
     def step(self):
         op = self.state[self.get_pc()]
-        fun, n_args = Ops.get(op)
+        fun, n_args = self.ops.get(op)
         fun(self, *[self.state[self.get_pc()] for _ in range(n_args)])
         return op
 

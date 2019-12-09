@@ -7,27 +7,21 @@ class Ops(day5.Ops):
 
 
 class Program(day5.Program):
+    def __init__(self, *args, ops=Ops):
+        super().__init__(*args, ops)
+
     def run(self):
         self.rb = 0
         super().run()
 
-    def step(self):
-        code, op = divmod(self.state[self.get_pc()], 100)
-        fun, n_args = Ops.get(op)
-        args = []
-        for i in range(n_args):
-            code, mode = divmod(code, 10)
-            pos = self.get_pc()
-            if mode != 1:
-                pos = self.state[pos]
-                if mode == 2:
-                    pos += self.rb
-            args.append(pos)
-        ln = max(args, default=0)
-        if len(self.state) <= ln:
-            self.state.extend([0] * (ln - len(self.state) + 1))
-        fun(self, *args)
-        return op
+    def handle_mode(self, mode, pos):
+        if mode != 1:
+            pos = self.state[pos]
+            if mode == 2:
+                pos += self.rb
+        if len(self.state) <= pos:
+            self.state.extend([0] * (pos - len(self.state) + 1))
+        return pos
 
 
 def solve(lines):

@@ -24,21 +24,23 @@ class Ops(day2.Ops):
 
 
 class Program(day2.Program):
-    def __init__(self, data, input_fn, output_fn):
-        super().__init__(data)
+    def __init__(self, data, input_fn, output_fn, ops=Ops):
+        super().__init__(data, ops)
         self.input = input_fn
         self.output = output_fn
 
+    def handle_mode(self, mode, pos):
+        if not mode:
+            pos = self.state[pos]
+        return pos
+
     def step(self):
         code, op = divmod(self.state[self.get_pc()], 100)
-        fun, n_args = Ops.get(op)
+        fun, n_args = self.ops.get(op)
         args = []
         for i in range(n_args):
-            code, direct = divmod(code, 10)
-            pos = self.get_pc()
-            if not direct:
-                pos = self.state[pos]
-            args.append(pos)
+            code, mode = divmod(code, 10)
+            args.append(self.handle_mode(mode, self.get_pc()))
         fun(self, *args)
         return op
 
