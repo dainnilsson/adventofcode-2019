@@ -15,4 +15,4 @@ jobs:
         python-version: 3.6
     - name: Run tests
       run: |
-        python -u setup.py test
+        python -u setup.py test 2>&1

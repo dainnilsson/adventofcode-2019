@@ -19,8 +19,6 @@ class TestAoc19(unittest.TestCase):
             with self.subTest(day=day):
                 self._test_day(day)
 
-        print()
-
     def _test_day(self, day):
         mod = import_module("aoc19.day{:d}".format(day))
         try:
