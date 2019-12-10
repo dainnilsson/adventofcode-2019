@@ -13,9 +13,12 @@ class TestAoc19(unittest.TestCase):
         print()
         print()
 
-        for fname in sorted(os.listdir("inputs")):
+        days = []
+        for fname in os.listdir("inputs"):
             m = RE_DAY.match(fname)
-            day = int(m.group(1))
+            days.append(int(m.group(1)))
+        days.sort()
+        for day in days:
             with self.subTest(day=day):
                 self._test_day(day)
 
