@@ -14,20 +14,19 @@ def solve(lines):
                 asteroids.add((x, y))
 
     best = {}
-    for y in range(len(lines)):
-        for x in range(len(lines[y])):
-            los = {}
-            for x2, y2 in asteroids:
-                dx = x2 - x
-                dy = y2 - y
-                k = gcd(dx, dy)
-                if k != 0:
-                    bisect.insort(
-                        los.setdefault((dx // k, dy // k), []),
-                        (abs(dx) + abs(dy), (x2, y2)),
-                    )
-            if len(los) > len(best):
-                best = los
+    for x, y in asteroids:
+        los = {}
+        for x2, y2 in asteroids:
+            dx = x2 - x
+            dy = y2 - y
+            k = gcd(dx, dy)
+            if k != 0:
+                bisect.insort(
+                    los.setdefault((dx // k, dy // k), []),
+                    (abs(dx) + abs(dy), (x2, y2)),
+                )
+        if len(los) > len(best):
+            best = los
 
     a = len(best)
 
