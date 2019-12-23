@@ -58,8 +58,7 @@ def solve(lines, render=False):
 
     game = Game()
 
-    p = Program(data, lambda: None, game.output)
-    p.run()
+    Program(data).run(lambda: None, game.output)
 
     a = len([t for t in game.screen.values() if t == 2])
 
@@ -72,8 +71,7 @@ def solve(lines, render=False):
             return game.input()
     else:
         f = game.input
-    p = Program(data, f, game.output)
-    p.run()
+    Program(data).run(f, game.output)
 
     b = game.score
     if render:

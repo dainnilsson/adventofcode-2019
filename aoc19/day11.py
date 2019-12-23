@@ -55,15 +55,13 @@ def solve(lines):
             painted.add(r.pos)
         r.update(value)
 
-    p = Program(data, r.scan, counting_update)
-    p.run()
+    Program(data).run(r.scan, counting_update)
 
     a = len(painted)
 
     hull = {(0, 0)}
     r = Robot(hull)
-    p = Program(data, r.scan, r.update)
-    p.run()
+    Program(data).run(r.scan, r.update)
 
     min_x, min_y, max_x, max_y = bounds(hull)
 

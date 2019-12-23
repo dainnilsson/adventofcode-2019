@@ -4,19 +4,18 @@ from . import day9
 class Program(day9.Program):
     def __init__(self, data, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
-        self.state = data.copy()
-        self.pc = 0
+        self.start()
         self.value = None
 
-    def run(self):
+    def run(self, input_fn, output_fn):
+        self.start = lambda: None
         try:
-            while self.step() != 99:
-                pass
+            super().run(input_fn, output_fn)
         except ValueError:
             return self.value
 
-    def fork(self, input_fn, output_fn):
-        prog = Program(self.data, input_fn, output_fn)
+    def fork(self):
+        prog = Program(self.data)
         prog.state = self.state.copy()
         prog.pc = self.pc
         return prog
@@ -41,7 +40,7 @@ class Explorer:
                 self.map[self.pos] = self.moved
                 for d in range(1, 5):
                     e = Explorer(self.map, self.others, self.moved, self.pos, d)
-                    e.prog = self.prog.fork(e.input, e.output)
+                    e.prog = self.prog.fork()
                     self.others.append(e)
         elif value == 2:
             self.map[self.pos] = -2
@@ -89,11 +88,11 @@ def explore(data):
     a = None
     for d in range(1, 5):
         e = Explorer(m, bots, d=d)
-        e.prog = Program(data, e.input, e.output)
+        e.prog = Program(data)
         bots.append(e)
     while bots:
         e = bots.pop(0)
-        ans = e.prog.run()
+        ans = e.prog.run(e.input, e.output)
         if ans is not None:
             a = ans
     return m, a

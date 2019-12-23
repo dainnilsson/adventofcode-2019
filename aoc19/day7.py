@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def solve_a(data):
     qs = [Queue() for _ in range(6)]
-    ps = [Program(data, qs[i].get, qs[i + 1].put) for i in range(5)]
+    ps = [Program(data) for i in range(5)]
 
     a = 0
     for seqs in permutations(range(5), 5):
@@ -15,8 +15,8 @@ def solve_a(data):
             qs[i].put(s)
         qs[0].put(0)
 
-        for p in ps:
-            p.run()
+        for i, p in enumerate(ps):
+            p.run(qs[i].get, qs[i + 1].put)
         a = max(a, qs[-1].get())
     return a
 
@@ -24,7 +24,7 @@ def solve_a(data):
 def solve_b(data):
     qs = [Queue() for _ in range(5)]
     qs.append(qs[0])
-    ps = [Program(data, qs[i].get, qs[i + 1].put) for i in range(5)]
+    ps = [Program(data) for i in range(5)]
 
     b = 0
     for seqs in permutations(range(5, 10), 5):
@@ -33,8 +33,8 @@ def solve_b(data):
         qs[0].put(0)
 
         with ThreadPoolExecutor() as e:
-            for p in ps:
-                e.submit(p.run)
+            for i, p in enumerate(ps):
+                e.submit(p.run, qs[i].get, qs[i + 1].put)
 
         b = max(b, qs[0].get())
     return b
@@ -52,7 +52,7 @@ def solve(lines):
 def solve_b_opt(data):
     qs = [Queue() for _ in range(5)]
     qs.append(qs[0])
-    ps = [Program(data, qs[i].get, qs[i + 1].put) for i in range(5)]
+    ps = [Program(data) for i in range(5)]
 
     b = 0
     for seqs in permutations(range(5, 10), 5):
@@ -61,15 +61,18 @@ def solve_b_opt(data):
         qs[0].put(0)
 
         for p in ps:
-            p.state = p.data.copy()
-            p.pc = 0
+            p.start()
 
         act = 0  # Do our own scheduling
-        op = ps[0].step()
+        op = 0
         while op != 99:
-            if op == 4:
+            p = ps[act]
+            op = p.step()
+            if op == 3:
+                p.state[p._get_io()] = qs[act].get()
+            elif op == 4:
+                qs[act + 1].put(p._get_io())
                 act = (act + 1) % 5
-            op = ps[act].step()
 
         b = max(b, qs[0].get())
     return b

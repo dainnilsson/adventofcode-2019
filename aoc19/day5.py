@@ -3,10 +3,10 @@ from . import day2
 
 class Ops(day2.Ops):
     def op_3(prog, a):
-        prog.state[a] = prog.input()
+        prog.io = a
 
     def op_4(prog, a):
-        prog.output(prog.state[a])
+        prog.io = prog.state[a]
 
     def op_5(prog, a, b):
         if prog.state[a]:
@@ -24,10 +24,21 @@ class Ops(day2.Ops):
 
 
 class Program(day2.Program):
-    def __init__(self, data, input_fn, output_fn, ops=Ops):
+    def __init__(self, data, ops=Ops):
         super().__init__(data, ops)
-        self.input = input_fn
-        self.output = output_fn
+        self.io = None
+
+    def _set_io(self, value):
+        if self.io is not None:
+            raise ValueError("Unhandled IO data!")
+        self.io = value
+
+    def _get_io(self):
+        if self.io is None:
+            raise ValueError("IO missing data!")
+        v = self.io
+        self.io = None
+        return v
 
     def handle_mode(self, mode, pos):
         if not mode:
@@ -44,18 +55,38 @@ class Program(day2.Program):
         fun(self, *args)
         return op
 
+    def generate(self):
+        op = None
+        while op != 99:
+            op = self.step()
+            if op == 3:
+                reg = self._get_io()
+                yield (3, self._set_io)
+                self.state[reg] = self._get_io()
+            elif op == 4:
+                yield (4, self._get_io())
+        yield (99, None)
+
+    def run(self, in_fn, out_fn):
+        self.start()
+        for op, arg in self.generate():
+            if op == 3:
+                arg(in_fn())
+            elif op == 4:
+                out_fn(arg)
+
 
 def solve(lines):
     data = [int(d) for d in lines[0].split(",")]
 
     out = []
 
-    program = Program(data, lambda: 1, out.append)
-    program.run()
+    program = Program(data)
+    program.run(lambda: 1, out.append)
     a = out[-1]
 
-    program = Program(data, lambda: 5, out.append)
-    program.run()
+    program = Program(data)
+    program.run(lambda: 5, out.append)
     b = out[-1]
 
     return a, b

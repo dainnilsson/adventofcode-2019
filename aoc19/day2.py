@@ -29,6 +29,10 @@ class Program:
         self.pc += 1
         return self.pc - 1
 
+    def start(self):
+        self.pc = 0
+        self.state = self.data.copy()
+
     def step(self):
         op = self.state[self.get_pc()]
         fun, n_args = self.ops.get(op)
@@ -36,11 +40,9 @@ class Program:
         return op
 
     def run(self):
-        self.pc = 0
-        self.state = self.data.copy()
+        self.start()
         while self.step() != 99:
             pass
-        return self.state[0]
 
 
 def candidates():
@@ -60,12 +62,14 @@ def solve(lines):
     program.data[1] = 12
     program.data[2] = 2
 
-    a = program.run()
+    program.run()
+    a = program.state[0]
 
     for noun, verb in candidates():
         program.data[1] = noun
         program.data[2] = verb
-        if program.run() == 19690720:
+        program.run()
+        if program.state[0] == 19690720:
             return (a, 100 * noun + verb)
 
 

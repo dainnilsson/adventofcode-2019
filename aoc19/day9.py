@@ -10,9 +10,9 @@ class Program(day5.Program):
     def __init__(self, *args, ops=Ops):
         super().__init__(*args, ops)
 
-    def run(self):
+    def start(self):
         self.rb = 0
-        super().run()
+        super().start()
 
     def handle_mode(self, mode, pos):
         if mode != 1:
@@ -27,12 +27,11 @@ class Program(day5.Program):
 def solve(lines):
     data = [int(d) for d in lines[0].split(",")]
 
-    inp = [2, 1]
     out = []
-    p = Program(data, inp.pop, out.append)
+    p = Program(data)
 
-    p.run()
-    p.run()
+    p.run(lambda: 1, out.append)
+    p.run(lambda: 2, out.append)
 
     return tuple(out)
 

@@ -4,8 +4,7 @@ from .day9 import Program
 def check(data, x, y):
     pos = [y, x]
     out = []
-    p = Program(data, pos.pop, out.append)
-    p.run()
+    Program(data).run(pos.pop, out.append)
     return out.pop()
 
 
