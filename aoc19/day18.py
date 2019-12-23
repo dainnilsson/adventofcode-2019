@@ -1,10 +1,15 @@
 import re
 import bisect
-from collections import defaultdict
 from functools import lru_cache
+from .day17 import DIRS, find_state
 
 
 KEY = re.compile(r"[a-z]")
+
+
+class SortedList(list):
+    def append(self, value):
+        bisect.insort(self, value)
 
 
 def candidates(data, all_keys, pos, keys):
@@ -18,27 +23,26 @@ def candidates(data, all_keys, pos, keys):
             if target in all_keys and target not in keys:
                 yield m, (x, y), keys | {target}
             if target == "." or target.lower() in keys:
-                for (dx, dy) in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                for (dx, dy) in DIRS:
                     remaining.append(((x + dx, y + dy), m + 1))
 
 
 def solve_a(data, all_keys, start):
-    states = [(0, start, frozenset())]
-    explored = defaultdict(lambda: float("inf"))
-
     @lru_cache(maxsize=None)
     def cands(pos, keys):
         return candidates(data, all_keys, pos, keys)
 
-    while states:
-        m, pos, keys = states.pop(0)
-        if len(keys) == len(all_keys):
-            return m
-        for dm, pos, keys in cands(pos, keys):
-            nm = m + dm
-            if nm < explored[(pos, keys)]:
-                bisect.insort(states, (nm, pos, keys))
-                explored[(pos, keys)] = nm
+    def paths(state):
+        steps, keys, pos = state
+        for s, p, k in cands(pos, keys):
+            yield (steps + s, k, p)
+
+    return find_state(
+        SortedList([(0, frozenset(), start)]),
+        paths,
+        lambda s: len(s[1]) == len(all_keys),
+        lambda s: s[1:],
+    )[0]
 
 
 def solve_b(data, all_keys, start):
@@ -55,25 +59,23 @@ def solve_b(data, all_keys, start):
         (start[0] + 1, start[1] + 1),
     )
 
-    n_keys = len(all_keys)
-    states = [(0, bots, frozenset())]
-    explored = defaultdict(lambda: float("inf"))
-
     @lru_cache(maxsize=None)
     def cands(pos, keys):
         return candidates(data, all_keys, pos, keys)
 
-    while states:
-        m, bots, keys = states.pop(0)
-        if len(keys) == n_keys:
-            return m
+    def paths(state):
+        steps, keys, bots = state
         for i in range(4):
-            for dm, pos, keys2 in cands(bots[i], keys):
-                m2 = m + dm
-                bots2 = bots[:i] + (pos,) + bots[i + 1 :]
-                if m2 < explored[(bots2, keys2)]:
-                    bisect.insort(states, (m2, bots2, keys2))
-                    explored[(bots2, keys2)] = m2
+            for s, p, k in cands(bots[i], keys):
+                bots2 = bots[:i] + (p,) + bots[i + 1 :]
+                yield (steps + s, k, bots2)
+
+    return find_state(
+        SortedList([(0, frozenset(), bots)]),
+        paths,
+        lambda s: len(s[1]) == len(all_keys),
+        lambda s: s[1:],
+    )[0]
 
 
 def solve(lines):
